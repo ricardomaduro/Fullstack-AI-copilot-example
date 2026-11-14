@@ -1,0 +1,16 @@
+- main [ref=e3]:
+  - region "Find a person" [ref=e4]:
+    - generic [ref=e5]: PEOPLE DIRECTORY
+    - heading "Find a person" [level=1] [ref=e7]
+    - paragraph [ref=e8]: Enter an ID to look up someone in the directory.
+    - generic [ref=e9]:
+      - generic [ref=e10]: Person ID
+      - generic [ref=e11]:
+        - spinbutton "Person ID" [ref=e12]
+        - button "Search" [ref=e13] [cursor=pointer]:
+          - text: Search
+          - generic [aria-hidden] [ref=e14]: →
+    - generic [ref=e16]:
+      - generic [ref=e17]: LOOKUP SERVICE
+      - generic [ref=e18]: API · READY
+  - paragraph [ref=e19]: A simple directory lookup

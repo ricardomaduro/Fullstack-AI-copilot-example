@@ -28,4 +28,18 @@ base URL, define `VITE_API_BASE_URL` in a `.env.local` file in this directory.
 ```powershell
 npm run build
 npm run lint
+npm run test:e2e
 ```
+
+`npm run test:e2e` runs the browser tests in Chromium. Install the browser once
+with `npx playwright install chromium` if Playwright prompts you to do so.
+
+The UI-01 test can also be run with pytest from the project root:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m playwright install chromium
+python -m pytest tests/test_frontend.py -q
+```
+
+The pytest test starts and stops Vite automatically. It uses port `5174`.

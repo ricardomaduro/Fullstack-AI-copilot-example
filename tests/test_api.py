@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 from main import app, get_people_service
 from models import Person
 from people_service import (
-    PeopleService,
+    CsvPeopleService,
     PeopleServiceProtocol,
     create_people_service,
     read_people,
@@ -20,14 +20,14 @@ def client():
 
 
 def test_service_returns_person_domain_model():
-    service = PeopleService({SECOND_PERSON.id: SECOND_PERSON})
+    service = CsvPeopleService({SECOND_PERSON.id: SECOND_PERSON})
     person = service.get_person_by_id(SECOND_PERSON.id)
 
     assert person == SECOND_PERSON
 
 
 def test_people_service_implements_protocol():
-    service: PeopleServiceProtocol = PeopleService(
+    service: PeopleServiceProtocol = CsvPeopleService(
         {SECOND_PERSON.id: SECOND_PERSON}
     )
 
@@ -36,7 +36,9 @@ def test_people_service_implements_protocol():
 
 
 def test_api_can_override_people_service_dependency(client):
-    test_service = PeopleService({7: Person(id=7, name="Test", country="Example")})
+    test_service = CsvPeopleService(
+        {7: Person(id=7, name="Test", country="Example")}
+    )
     app.dependency_overrides[get_people_service] = lambda: test_service
     try:
         response = client.get("/people/7")

@@ -33,7 +33,7 @@ def read_people(csv_path: Path = CSV_PATH) -> dict[int, Person]:
         }
 
 
-class PeopleService:
+class CsvPeopleService:
     def __init__(self, people: Mapping[int, Person] | None = None) -> None:
         self._people = dict(people) if people is not None else read_people()
 
@@ -51,4 +51,4 @@ class PeopleService:
 
 
 def create_people_service() -> PeopleServiceProtocol:
-    return PeopleService()
+    return CsvPeopleService()
