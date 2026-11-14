@@ -6,8 +6,9 @@ from models import CountryResponse, NameResponse, PersonResponse
 from people_service import (
     PeopleServiceProtocol,
     PersonNotFoundError,
-    get_people_service,
+    create_people_service,
 )
+
 
 app = FastAPI()
 app.add_middleware(
@@ -16,6 +17,10 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
+
+def get_people_service() -> PeopleServiceProtocol:
+    return create_people_service()
 
 
 @app.get("/people/{person_id}", response_model=PersonResponse)

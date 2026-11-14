@@ -50,8 +50,5 @@ class PeopleService:
         return self.get_person_by_id(person_id).country
 
 
-_people_service = PeopleService()
-
-
-def get_people_service() -> PeopleServiceProtocol:
-    return _people_service
+def create_people_service() -> PeopleServiceProtocol:
+    return PeopleService()
