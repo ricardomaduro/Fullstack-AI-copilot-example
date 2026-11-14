@@ -7,7 +7,10 @@ from people_service import (
     PeopleService,
     PeopleServiceProtocol,
     create_people_service,
+    read_people,
 )
+
+SECOND_PERSON = list(read_people().values())[1]
 
 
 @pytest.fixture
@@ -17,19 +20,19 @@ def client():
 
 
 def test_service_returns_person_domain_model():
-    service = PeopleService({2: Person(id=2, name="Maria", country="Portugal")})
-    person = service.get_person_by_id(2)
+    service = PeopleService({SECOND_PERSON.id: SECOND_PERSON})
+    person = service.get_person_by_id(SECOND_PERSON.id)
 
-    assert person == Person(id=2, name="Maria", country="Portugal")
+    assert person == SECOND_PERSON
 
 
 def test_people_service_implements_protocol():
     service: PeopleServiceProtocol = PeopleService(
-        {2: Person(id=2, name="Maria", country="Portugal")}
+        {SECOND_PERSON.id: SECOND_PERSON}
     )
 
-    assert service.get_name_by_id(2) == "Maria"
-    assert service.get_country_by_id(2) == "Portugal"
+    assert service.get_name_by_id(SECOND_PERSON.id) == SECOND_PERSON.name
+    assert service.get_country_by_id(SECOND_PERSON.id) == SECOND_PERSON.country
 
 
 def test_api_can_override_people_service_dependency(client):
@@ -45,7 +48,10 @@ def test_api_can_override_people_service_dependency(client):
 
 
 def test_api_allows_local_react_development_origin(client):
-    response = client.get("/people/2", headers={"Origin": "http://localhost:5173"})
+    response = client.get(
+        f"/people/{SECOND_PERSON.id}",
+        headers={"Origin": "http://localhost:5173"},
+    )
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
@@ -54,9 +60,22 @@ def test_api_allows_local_react_development_origin(client):
 @pytest.mark.parametrize(
     ("path", "expected"),
     [
-        ("/people/2", {"id": 2, "name": "Maria", "country": "Portugal"}),
-        ("/people/2/name", {"id": 2, "name": "Maria"}),
-        ("/people/2/country", {"id": 2, "country": "Portugal"}),
+        (
+            f"/people/{SECOND_PERSON.id}",
+            {
+                "id": SECOND_PERSON.id,
+                "name": SECOND_PERSON.name,
+                "country": SECOND_PERSON.country,
+            },
+        ),
+        (
+            f"/people/{SECOND_PERSON.id}/name",
+            {"id": SECOND_PERSON.id, "name": SECOND_PERSON.name},
+        ),
+        (
+            f"/people/{SECOND_PERSON.id}/country",
+            {"id": SECOND_PERSON.id, "country": SECOND_PERSON.country},
+        ),
     ],
 )
 def test_get_person_endpoints(client, path, expected):
@@ -98,8 +117,8 @@ def test_service_is_created_for_each_request(monkeypatch):
     monkeypatch.setattr("main.create_people_service", create_service)
 
     with TestClient(app) as test_client:
-        first_response = test_client.get("/people/2")
-        second_response = test_client.get("/people/2/name")
+        first_response = test_client.get(f"/people/{SECOND_PERSON.id}")
+        second_response = test_client.get(f"/people/{SECOND_PERSON.id}/name")
 
     assert first_response.status_code == 200
     assert second_response.status_code == 200
