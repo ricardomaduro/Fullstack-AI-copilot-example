@@ -35,6 +35,7 @@
 | UI-10 | P2 | Keyboard and accessibility | Navigate with Tab, enter an ID, submit with Enter, and inspect accessible names/live announcements. | Input and button are keyboard accessible and labeled; loading, result, and error updates are announced. **Automated:** `tests/test_frontend.py`. |
 | UI-11 | P2 | Responsive layout | Check at desktop width and a mobile viewport such as 375 × 812. | Content remains visible without horizontal scrolling; the input and Search button stack on narrow screens. **Automated:** `tests/test_frontend.py`. |
 | UI-12 | P1 | Local API CORS | Load from `http://localhost:5173` and look up a person. | The browser request succeeds; API responses include the allowed frontend origin. **Automated:** `tests/test_frontend.py` against a live local FastAPI server. |
+| UI-13 | P1 | Create a new entry | Click “Create new entry”, enter a name and country, and submit. | The app sends a POST request, closes the dialog on success, displays the created name and country, and fills in the server-assigned next ID. **Automated:** `tests/test_frontend.py`; persistence and ID assignment are also tested in `tests/test_api.py`. |
 
 ## Playwright smoke checks performed
 

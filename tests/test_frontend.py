@@ -350,3 +350,38 @@ def test_ui_12_local_api_cors_allows_lookup_from_frontend_origin(
     assert response.value.headers["access-control-allow-origin"] == (
         "http://127.0.0.1:5174"
     )
+
+
+def test_ui_13_create_new_entry_from_dialog(page: Page) -> None:
+    next_id = max(person.id for person in CSV_PEOPLE) + 1
+    submitted_payload: dict[str, str] = {}
+
+    def create_person(route: Route) -> None:
+        nonlocal submitted_payload
+        assert route.request.method == "POST"
+        submitted_payload = route.request.post_data_json
+        _fulfill_json(
+            route,
+            201,
+            {
+                "id": next_id,
+                "name": submitted_payload["name"].strip(),
+                "country": submitted_payload["country"].strip(),
+            },
+        )
+
+    page.route(f"{API_URL}/people", create_person)
+    page.get_by_role("button", name="Create new entry").click()
+    dialog = page.get_by_role("dialog", name="Add a person")
+    assert dialog.is_visible()
+    dialog.get_by_label("Name").fill("  New Person  ")
+    dialog.get_by_label("Country").fill("  New Country  ")
+    dialog.get_by_role("button", name="Create entry").click()
+
+    dialog.wait_for(state="detached")
+    assert submitted_payload == {"name": "  New Person  ", "country": "  New Country  "}
+    assert page.get_by_role("spinbutton", name="Person ID").input_value() == str(
+        next_id
+    )
+    assert page.get_by_label("Name").inner_text() == "New Person"
+    assert page.get_by_label("Country").inner_text() == "New Country"

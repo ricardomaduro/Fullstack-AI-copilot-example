@@ -2,7 +2,12 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import CountryResponse, NameResponse, PersonResponse
+from models import (
+    CountryResponse,
+    NameResponse,
+    PersonCreateRequest,
+    PersonResponse,
+)
 from people_service import (
     PeopleServiceProtocol,
     PersonNotFoundError,
@@ -18,13 +23,26 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://127.0.0.1:5174",
     ],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
 
 def get_people_service() -> PeopleServiceProtocol:
     return create_people_service()
+
+
+@app.post("/people", response_model=PersonResponse, status_code=201)
+def create_person(
+    person: PersonCreateRequest,
+    service: PeopleServiceProtocol = Depends(get_people_service),
+) -> PersonResponse:
+    created_person = service.create_person(person.name, person.country)
+    return PersonResponse(
+        id=created_person.id,
+        name=created_person.name,
+        country=created_person.country,
+    )
 
 
 @app.get("/people/{person_id}", response_model=PersonResponse)

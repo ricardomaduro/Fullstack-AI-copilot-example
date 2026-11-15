@@ -1,7 +1,8 @@
 # People Directory
 
 Single-page React app for looking up a person's name and country by ID using
-the FastAPI service.
+the FastAPI service. Use **Create new entry** to add a name and country; the API
+assigns the next ID and saves the entry to `data.csv`.
 
 ## Run locally
 

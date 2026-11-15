@@ -14,6 +14,11 @@ function App() {
   const [person, setPerson] = useState<Person | null>(null)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newCountry, setNewCountry] = useState('')
+  const [createError, setCreateError] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -54,6 +59,46 @@ function App() {
     }
   }
 
+  async function handleCreateSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsCreating(true)
+    setCreateError('')
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/people`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName, country: newCountry }),
+      })
+      if (!response.ok) {
+        throw new Error(`The server returned an error (${response.status}).`)
+      }
+
+      const createdPerson: Person = await response.json()
+      setPersonId(String(createdPerson.id))
+      setPerson(createdPerson)
+      setError('')
+      setNewName('')
+      setNewCountry('')
+      setIsCreateDialogOpen(false)
+    } catch (requestError) {
+      setCreateError(
+        requestError instanceof TypeError
+          ? 'Could not connect to the API. Make sure the FastAPI server is running.'
+          : requestError instanceof Error
+            ? requestError.message
+            : 'Could not create this person.',
+      )
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
+  function openCreateDialog() {
+    setCreateError('')
+    setIsCreateDialogOpen(true)
+  }
+
   return (
     <main className="page-shell">
       <section className="lookup-card" aria-labelledby="page-title">
@@ -87,6 +132,14 @@ function App() {
           </div>
         </form>
 
+        <button
+          className="create-entry-button"
+          type="button"
+          onClick={openCreateDialog}
+        >
+          Create new entry
+        </button>
+
         <div className="result-area" aria-live="polite" aria-busy={isLoading}>
           {error && <p className="message error-message" role="alert">{error}</p>}
           {isLoading && <p className="message">Looking up person…</p>}
@@ -111,6 +164,62 @@ function App() {
         </footer>
       </section>
       <p className="page-caption">A simple directory lookup</p>
+      {isCreateDialogOpen && (
+        <div className="dialog-backdrop">
+          <section
+            className="create-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-dialog-title"
+          >
+            <p className="eyebrow">NEW DIRECTORY ENTRY</p>
+            <h2 id="create-dialog-title">Add a person</h2>
+            <p className="dialog-intro">
+              The next available ID will be assigned automatically.
+            </p>
+            <form className="create-form" onSubmit={handleCreateSubmit}>
+              <label htmlFor="new-person-name">Name</label>
+              <input
+                id="new-person-name"
+                name="name"
+                type="text"
+                maxLength={100}
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                required
+              />
+              <label htmlFor="new-person-country">Country</label>
+              <input
+                id="new-person-country"
+                name="country"
+                type="text"
+                maxLength={100}
+                value={newCountry}
+                onChange={(event) => setNewCountry(event.target.value)}
+                required
+              />
+              {createError && (
+                <p className="message error-message" role="alert">
+                  {createError}
+                </p>
+              )}
+              <div className="dialog-actions">
+                <button
+                  className="cancel-button"
+                  type="button"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </button>
+                <button type="submit" disabled={isCreating}>
+                  {isCreating ? 'Creating…' : 'Create entry'}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </main>
   )
 }
