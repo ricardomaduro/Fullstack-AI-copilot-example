@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from csv_people_service import CsvPeopleService
 from main import app, get_people_service
 from models import Person
 from people_service import (
-    CsvPeopleService,
     PeopleServiceProtocol,
     create_people_service,
     read_people,
