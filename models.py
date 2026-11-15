@@ -12,8 +12,26 @@ class Person:
 
 
 class PersonCreateRequest(BaseModel):
-    name: str = Field(min_length=1, max_length=100)
-    country: str = Field(min_length=1, max_length=100)
+    """Fields required to create a person; the API assigns the ID."""
+
+    name: str = Field(
+        min_length=1,
+        max_length=100,
+        description="Person's name. Leading and trailing whitespace is removed.",
+        examples=["Ada Lovelace"],
+    )
+    country: str = Field(
+        min_length=1,
+        max_length=100,
+        description="Person's country. Leading and trailing whitespace is removed.",
+        examples=["United Kingdom"],
+    )
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [{"name": "Ada Lovelace", "country": "United Kingdom"}]
+        }
+    }
 
     @field_validator("name", "country", mode="before")
     @classmethod
@@ -22,16 +40,22 @@ class PersonCreateRequest(BaseModel):
 
 
 class PersonResponse(BaseModel):
-    id: int
-    name: str
-    country: str
+    """A person's ID, name, and country."""
+
+    id: int = Field(description="Unique person ID assigned by the API.")
+    name: str = Field(description="Person's name.")
+    country: str = Field(description="Person's country.")
 
 
 class NameResponse(BaseModel):
-    id: int
-    name: str
+    """A person's ID and name."""
+
+    id: int = Field(description="Person's ID.")
+    name: str = Field(description="Person's name.")
 
 
 class CountryResponse(BaseModel):
-    id: int
-    country: str
+    """A person's ID and country."""
+
+    id: int = Field(description="Person's ID.")
+    country: str = Field(description="Person's country.")

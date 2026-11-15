@@ -12,6 +12,10 @@ Start the API from the project root:
 python main.py
 ```
 
+API documentation is available at `http://127.0.0.1:8000/docs` (Swagger UI),
+`http://127.0.0.1:8000/redoc` (ReDoc), and
+`http://127.0.0.1:8000/openapi.json` (OpenAPI schema).
+
 In another terminal, start the frontend:
 
 ```powershell

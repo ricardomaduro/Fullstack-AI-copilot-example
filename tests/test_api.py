@@ -59,6 +59,32 @@ def test_api_allows_local_react_development_origin(client):
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
 
 
+def test_openapi_and_swagger_documentation_are_available(client):
+    openapi_response = client.get("/openapi.json")
+    swagger_response = client.get("/docs")
+    redoc_response = client.get("/redoc")
+
+    assert openapi_response.status_code == 200
+    assert swagger_response.status_code == 200
+    assert redoc_response.status_code == 200
+
+    schema = openapi_response.json()
+    assert schema["info"]["title"] == "People Directory API"
+    assert schema["info"]["version"] == "1.0.0"
+    assert set(schema["paths"]) == {
+        "/people",
+        "/people/{person_id}",
+        "/people/{person_id}/name",
+        "/people/{person_id}/country",
+    }
+    assert "201" in schema["paths"]["/people"]["post"]["responses"]
+    assert "422" in schema["paths"]["/people"]["post"]["responses"]
+    assert "404" in schema["paths"]["/people/{person_id}"]["get"]["responses"]
+    assert schema["paths"]["/people"]["post"]["requestBody"]
+    assert "PersonResponse" in schema["components"]["schemas"]
+    assert "PersonCreateRequest" in schema["components"]["schemas"]
+
+
 @pytest.mark.parametrize(
     ("path", "expected"),
     [
